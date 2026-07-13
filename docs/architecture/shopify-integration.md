@@ -20,6 +20,15 @@
 
 ## 2. Requested access
 
+### Shopify plan capabilities
+
+Current Shopify guidance makes core B2B companies, company locations, and net
+payment terms available on Basic, Grow, Advanced, and Plus. Deposit requirements
+and advanced partial-payment capabilities remain Plus-only. The MVP must not
+require a Plus-only feature to install or deliver its core aging and reminder
+workflow. Capability checks and fixtures must cover a standard-plan core B2B
+store; Plus-only partial-payment scenarios are an additional compatibility path.
+
 ### Admin API scopes
 
 | Scope | Why it is required | Review note |
@@ -181,6 +190,11 @@ headers for diagnostics. Never log webhook bodies or HMAC secrets.
 - Configure Free, Starter, Growth and Scale as Shopify App Pricing plans.
 - Shopify hosts selection and performs recurring/annual billing, trials,
   proration and changes.
+- As of the 2026-07-14 review, the Partner API documentation labels the
+  `activeSubscription` query's `2026-07` surface as release candidate. Verify
+  stable availability and permissions when implementing billing; if it is not
+  stable, use Shopify's then-supported App Pricing verification path rather than
+  silently falling back to legacy Billing API charges.
 - On redirect, use `plan_handle` and shop only as lookup inputs, then query the
   Partner API to verify canonical active subscription state.
 - For lifecycle changes without a redirect, poll/refresh the Partner API and use
@@ -207,7 +221,8 @@ process; it is never emailed blindly from a webhook payload.
 ## 10. Development-store proof checklist
 
 - [ ] Create a Shopify Plus/B2B-capable development store with companies,
-  locations, contacts and payment-term orders.
+  locations, contacts and payment-term orders, plus a standard-plan B2B fixture
+  or documented capability-equivalent test.
 - [ ] Obtain `read_all_orders` and protected customer data/email access in the
   development app configuration.
 - [ ] Capture successful GraphQL queries for partial payment, refund,
@@ -236,3 +251,5 @@ process; it is never emailed blindly from a webhook payload.
 - [Protected customer data](https://shopify.dev/docs/apps/launch/protected-customer-data)
 - [Expiring offline tokens](https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/offline-access-tokens)
 - [Shopify App Pricing](https://shopify.dev/docs/apps/launch/billing/shopify-app-pricing)
+- [Partner API active subscription](https://shopify.dev/docs/api/partner/latest/active-subscription)
+- [Shopify B2B features by plan](https://help.shopify.com/en/manual/b2b/getting-started/plan-features)
