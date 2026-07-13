@@ -1,0 +1,18 @@
+flowchart LR
+    Staff[Merchant staff]
+    Buyer[Wholesale buyer contact]
+    App[B2B A/R Collections Assistant]
+    Shopify[Shopify Admin + Partner APIs]
+    Postmark[Postmark transactional email]
+    Ops[Product operator]
+    Telemetry[Redacted observability]
+
+    Staff -->|Embedded UI, approved actions| App
+    App -->|Aging, queue, history, controls| Staff
+    Shopify -->|GraphQL truth, webhooks, sessions, plans| App
+    App -->|Scoped queries and subscription verification| Shopify
+    App -->|Approved reminder or statement| Postmark
+    Postmark -->|Email| Buyer
+    Postmark -->|Delivery, bounce, complaint events| App
+    Ops -->|Audited diagnostics and recovery| App
+    App -->|Metrics, structured logs, errors; no content| Telemetry

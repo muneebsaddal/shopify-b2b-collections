@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.shopify/
+build/
+dist/
+.cache/
+coverage/
+logs/
+*.log
+*.tsbuildinfo
+tmp/
+*.db
+*.db-journal
+.DS_Store

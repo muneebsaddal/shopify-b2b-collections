@@ -1,0 +1,27 @@
+sequenceDiagram
+    participant S as Scheduler
+    participant DB as PostgreSQL
+    participant W as Worker
+    participant SH as Shopify GraphQL
+    participant PM as Postmark
+
+    S->>DB: Create candidate job
+    W->>DB: Lock receivable/policy stage
+    DB-->>W: Active, eligible, not sent
+    W->>DB: Reserve unique delivery
+    W->>SH: Fetch current payment state
+    alt paid, canceled, suppressed, paused, or uncertain
+        W->>DB: Cancel/defer with evidence
+    else eligible
+        W->>DB: Mark SENDING + immutable snapshot
+        W->>PM: Send transactional email
+        alt accepted
+            PM-->>W: Provider message ID
+            W->>DB: Mark ACCEPTED
+        else definite rejection
+            PM-->>W: Rejected before acceptance
+            W->>DB: Mark safe failure / bounded retry
+        else ambiguous timeout
+            W->>DB: Mark UNKNOWN; prohibit auto-retry
+        end
+    end

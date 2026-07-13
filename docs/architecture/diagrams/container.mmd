@@ -1,0 +1,21 @@
+flowchart TB
+    Browser[Shopify Admin browser]
+    Shopify[Shopify GraphQL Admin / Partner APIs]
+    Postmark[Postmark]
+    Obs[Logs, metrics, Sentry]
+
+    subgraph Runtime[Application runtime]
+        Web[Embedded web service\nReact Router / Node.js]
+        Worker[Background worker\nNode.js]
+        DB[(PostgreSQL\nPrisma + pg-boss)]
+    end
+
+    Browser -->|Verified session token| Web
+    Shopify -->|HMAC webhooks and callbacks| Web
+    Postmark -->|Authenticated provider webhooks| Web
+    Web -->|Tenant-scoped transactions + jobs| DB
+    Worker -->|Lease jobs + tenant-scoped state| DB
+    Worker -->|Cost-budgeted GraphQL; expiring offline token| Shopify
+    Worker -->|Validated at-most-once sends| Postmark
+    Web -->|Redacted telemetry| Obs
+    Worker -->|Redacted telemetry| Obs
