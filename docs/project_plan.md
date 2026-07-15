@@ -1,6 +1,6 @@
 # B2B A/R Collections Assistant - Initial Project Plan
 
-**Status:** Requirements approved; architecture package ready for review
+**Status:** Requirements and architecture approved; implementation started
 **Date:** 2026-07-14
 **Working name:** B2B A/R Collections Assistant
 
@@ -341,5 +341,5 @@ running.
 
 ## 10. Immediate next action
 
-Review and approve the package under `docs/architecture/`. Then decompose the
-approved MVP into implementation tasks before scaffolding application code.
+Execute the ordered backlog in `docs/tasks.md`, beginning with the platform
+foundation and Shopify development-store contract proof.

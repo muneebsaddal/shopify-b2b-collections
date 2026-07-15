@@ -1,8 +1,9 @@
 # Threat Model
 
-**Status:** Proposed
+**Status:** Approved
 **Method:** STRIDE-informed abuse-case review
 **Date:** 2026-07-14
+**Approved:** 2026-07-15
 
 ## 1. Scope and security objectives
 

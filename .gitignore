@@ -1,4 +1,7 @@
 node_modules/
+.react-router/
+.shopify/
+.shopify.lock
 .env
 .env.*
 !.env.example
@@ -13,4 +16,11 @@ logs/
 tmp/
 *.db
 *.db-journal
+prisma/dev.sqlite
+prisma/dev.sqlite-journal
+database.sqlite
+public/_dev/
+public/build/
+extensions/*/dist/
+.scaffold/
 .DS_Store

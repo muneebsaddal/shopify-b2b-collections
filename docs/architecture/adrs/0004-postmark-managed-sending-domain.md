@@ -1,6 +1,6 @@
 # ADR 0004: Postmark with an app-managed sending domain
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-14
 
 ## Context

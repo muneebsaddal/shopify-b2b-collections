@@ -1,7 +1,8 @@
 # System Architecture
 
-**Status:** Proposed for architecture-gate approval
+**Status:** Approved
 **Date:** 2026-07-14
+**Approved:** 2026-07-15
 **Product:** B2B A/R Collections Assistant
 **Architecture style:** Modular monolith with a separately runnable worker
 
@@ -322,16 +323,16 @@ large event/delivery tables only after query and storage evidence supports it.
 
 ## 15. Architecture gate checklist
 
-- [ ] Product owner accepts source-of-truth and eventual-consistency behavior.
-- [ ] Product owner accepts fail-closed and ambiguous-send behavior.
+- [x] Product owner accepts source-of-truth and eventual-consistency behavior.
+- [x] Product owner accepts fail-closed and ambiguous-send behavior.
 - [ ] Required Shopify scopes/fields work on a B2B development store.
-- [ ] Level-2 protected-data request and privacy evidence plan are accepted.
-- [ ] Data model and tenant constraints are reviewed.
-- [ ] Threats and residual risks are accepted.
+- [x] Level-2 protected-data request and privacy evidence plan are accepted.
+- [x] Data model and tenant constraints are reviewed.
+- [x] Threats and residual risks are accepted.
 - [ ] Render region and initial monthly budget are selected before pilot data.
 - [ ] Postmark account/sending domain and reply-to verification flow are proven.
-- [ ] ADRs are accepted or superseded.
-- [ ] Implementation tasks are derived before scaffolding.
+- [x] ADRs are accepted or superseded.
+- [x] Implementation tasks are derived before scaffolding.
 
 ## 16. References
 

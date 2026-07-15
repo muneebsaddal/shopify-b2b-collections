@@ -1,20 +1,23 @@
 # Current State
 
-**Updated:** 2026-07-14
+**Updated:** 2026-07-15
 
 The B2B A/R Collections Assistant has been selected as the first Shopify app.
 The recommended product decisions, requirements, and PRD are approved, with
-beauty wholesalers as the first niche. The architecture package is ready for
-review under `docs/architecture/`: modular monolith plus worker, PostgreSQL and
+beauty wholesalers as the first niche. The architecture package was approved
+on 2026-07-15: modular monolith plus worker, PostgreSQL and
 `pg-boss`, Shopify as receivable truth, Postmark from an app-managed domain,
 Shopify App Pricing, Render as the pilot reference deployment, and Level-2
 protected-data access limited to buyer email. The Shopify scope/field contract,
 data model, threat model, failure behavior, diagrams, and seven ADRs are
-documented. No application code has been scaffolded.
+documented. The official Shopify React Router TypeScript template has been
+scaffolded and platform-foundation task F1 is complete.
 
-Next gate: approve or revise the architecture package, prove the selected
-Shopify fields/scopes on a B2B development store, then create the implementation
-task breakdown before scaffolding.
+Next gate: create or expose a Shopify Partners organization, link the CLI
+project to its Dev Dashboard app, and prove the selected fields/scopes on a B2B
+development store. CLI account authentication succeeds, but the API and
+`shopify app config validate` currently return `No Organization found` for the
+authenticated account.
 
 ## Integrity review checkpoint
 
@@ -41,3 +44,20 @@ task breakdown before scaffolding.
 No blocking inconsistency was found. The remaining unknowns are intentionally
 gated: real B2B development-store scope/field tests, stable App Pricing
 subscription verification, Render region/budget, and Postmark domain proof.
+
+## Architecture approval checkpoint
+
+**Approved:** 2026-07-15
+
+- Architecture, data model, threat model, privacy direction, and all seven ADRs
+  are accepted.
+- `docs/tasks.md`, project context, and the active implementation plan define
+  the implementation sequence.
+- The first UI concept is stored at
+  `docs/design/todays-collections-concept.png`.
+- Shopify CLI authentication is complete for account
+  `84699092-b4f2-4146-8e57-631d70cdd6a2`; organization/app linking is pending
+  because the API currently returns an empty organization list.
+- F1 validation passed: Prisma schema, 3 unit tests, ESLint, TypeScript,
+  production build, zero-vulnerability npm audit, and desktop/mobile Playwright
+  QA with a clean console.

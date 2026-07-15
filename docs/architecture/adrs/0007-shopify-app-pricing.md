@@ -1,6 +1,6 @@
 # ADR 0007: Shopify App Pricing as billing authority
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-14
 
 ## Context

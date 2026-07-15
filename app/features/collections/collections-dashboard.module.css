@@ -1,0 +1,701 @@
+:global(*) {
+  box-sizing: border-box;
+}
+
+:global(body) {
+  margin: 0;
+  background: #f7f8f8;
+  color: #1a1d1f;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.page {
+  width: min(100%, 1440px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 24px;
+  background: #fff;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.pageHeader > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pageHeader h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.previewLabel,
+.successTag {
+  border-radius: 999px;
+  background: #e4f4ed;
+  color: #006e52;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 22px;
+  padding: 0 9px;
+  white-space: nowrap;
+}
+
+.pauseButton,
+.resumeButton,
+.detailActions button,
+.clearButton {
+  min-height: 36px;
+  border: 1px solid #c9cccf;
+  border-radius: 7px;
+  background: #fff;
+  color: #1a1d1f;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pauseButton,
+.resumeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+}
+
+.pauseButton svg,
+.resumeButton svg,
+.primaryButton svg {
+  width: 17px;
+  height: 17px;
+}
+
+.resumeButton {
+  border-color: #008060;
+  color: #006e52;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  border: 1px solid #9ccfbe;
+  border-radius: 8px;
+  background: #eaf6f1;
+  color: #005c45;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.notice button,
+.iconButton {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.notice svg,
+.iconButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+.overview,
+.queuePanel,
+.detailRail {
+  overflow: hidden;
+  border: 1px solid #d9dcdf;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.syncBar {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #e2e4e5;
+  padding: 0 16px;
+  font-size: 13px;
+}
+
+.syncBar > span:not(.syncIcon) {
+  color: #61676d;
+}
+
+.syncBar button {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: #2c6ecb;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.syncIcon {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border-radius: 50%;
+  background: #008060;
+  color: #fff;
+}
+
+.syncIcon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.summaryGrid,
+.agingGrid {
+  display: grid;
+}
+
+.summaryGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid #e2e4e5;
+}
+
+.summaryGrid > div,
+.agingGrid > div {
+  position: relative;
+  padding: 16px;
+}
+
+.summaryGrid > div + div,
+.agingGrid > div + div {
+  border-left: 1px solid #e2e4e5;
+}
+
+.summaryGrid span,
+.agingGrid span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  color: #4f555a;
+  font-size: 12px;
+}
+
+.summaryGrid strong {
+  font-size: clamp(17px, 1.5vw, 22px);
+  letter-spacing: -0.015em;
+}
+
+.summaryGrid small {
+  margin-left: 7px;
+  color: #61676d;
+  font-size: 11px;
+}
+
+.summaryGrid i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9ca3a8;
+}
+
+.summaryGrid i.attention {
+  background: #e0a100;
+}
+
+.summaryGrid i.success {
+  background: #008060;
+}
+
+.agingGrid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.agingGrid > div {
+  padding-block: 13px;
+}
+
+.agingGrid span {
+  margin-bottom: 5px;
+  color: #202427;
+  font-weight: 600;
+}
+
+.agingGrid strong {
+  font-size: 14px;
+  font-weight: 550;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 14px;
+  align-items: start;
+  margin-top: 16px;
+}
+
+.filters {
+  display: flex;
+  min-height: 58px;
+  align-items: end;
+  gap: 8px;
+  border-bottom: 1px solid #e2e4e5;
+  padding: 10px;
+}
+
+.selectControl,
+.searchControl {
+  display: grid;
+  gap: 3px;
+  color: #565c61;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.selectControl select,
+.searchControl input {
+  height: 32px;
+  min-width: 94px;
+  border: 1px solid #c9cccf;
+  border-radius: 6px;
+  background: #fff;
+  color: #202427;
+  padding: 0 9px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.searchControl input {
+  width: 150px;
+}
+
+.clearButton {
+  min-height: 32px;
+  padding: 0 11px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tableScroller {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 790px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+th {
+  background: #f7f8f8;
+  color: #454b50;
+  font-size: 11px;
+  font-weight: 650;
+  text-align: left;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e5e7e8;
+  padding: 10px 12px;
+  vertical-align: middle;
+}
+
+th:nth-child(1) {
+  width: 23%;
+}
+th:nth-child(2) {
+  width: 17%;
+}
+th:nth-child(3) {
+  width: 20%;
+}
+th:nth-child(4) {
+  width: 16%;
+}
+th:nth-child(5) {
+  width: 24%;
+}
+
+tbody tr {
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+tbody tr:hover {
+  background: #f8fafc;
+}
+
+.selectedRow {
+  outline: 1.5px solid #2c6ecb;
+  outline-offset: -1.5px;
+  background: #eef5ff;
+}
+
+td button {
+  display: grid;
+  gap: 2px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+td > span,
+td button span,
+.secondaryLine {
+  color: #61676d;
+  font-size: 11px;
+}
+
+td:nth-child(2) > span {
+  margin-left: 5px;
+}
+
+.secondaryLine {
+  display: block;
+  margin-top: 3px;
+}
+
+.due_overdue {
+  color: #c5280c;
+}
+.due_due-soon {
+  color: #9c6f00;
+}
+.due_promise {
+  color: #a15c00;
+}
+.due_current {
+  color: #008060;
+}
+
+.stageTag {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  border-radius: 999px;
+  background: #f0f1f2;
+  color: #303437;
+  padding: 0 9px;
+  white-space: nowrap;
+}
+
+.selectedRow .stageTag {
+  background: #dff2e8;
+  color: #005c45;
+}
+
+.tableFooter {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  color: #61676d;
+  font-size: 11px;
+}
+
+.detailRail {
+  position: sticky;
+  top: 14px;
+}
+
+.detailHeader,
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detailHeader {
+  min-height: 62px;
+  border-bottom: 1px solid #d9dcdf;
+  padding: 0 15px;
+}
+
+.detailHeader > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detailHeader h2,
+.detailSection h3,
+.promiseSection h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.detailHeader span {
+  border-radius: 5px;
+  background: #f0f1f2;
+  color: #61676d;
+  padding: 3px 6px;
+  font-size: 11px;
+}
+
+.detailSection,
+.promiseSection {
+  border-bottom: 1px solid #d9dcdf;
+  padding: 15px;
+}
+
+.sectionHeading {
+  margin-bottom: 13px;
+}
+
+.sectionHeading > strong {
+  font-size: 13px;
+}
+
+.invoiceHeader,
+.invoiceRow {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 1fr;
+  gap: 8px;
+  padding: 7px 0;
+  font-size: 11px;
+}
+
+.invoiceHeader {
+  color: #61676d;
+}
+
+.invoiceHeader span:last-child,
+.invoiceRow strong {
+  text-align: right;
+}
+
+.timeline {
+  display: grid;
+  gap: 13px;
+  margin: 14px 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.timelineDot,
+.timelineIcon {
+  display: grid;
+  width: 19px;
+  height: 19px;
+  place-items: center;
+  color: #3f4549;
+  font-size: 11px;
+}
+
+.timelineDot {
+  border-radius: 50%;
+  background: #008060;
+  color: #fff;
+}
+
+.timeline div {
+  display: grid;
+  gap: 3px;
+  font-size: 11px;
+}
+
+.timeline small,
+.timeline time {
+  color: #61676d;
+  font-size: 10px;
+}
+
+.textButton {
+  border: 0;
+  background: transparent;
+  color: #2c6ecb;
+  padding: 0;
+  font-size: 11px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.promiseSection dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  font-size: 11px;
+}
+
+.promiseSection dl > div {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 10px;
+}
+
+.promiseSection dt {
+  color: #4f555a;
+}
+
+.promiseSection dd {
+  margin: 0;
+}
+
+.detailActions {
+  display: grid;
+  gap: 7px;
+  padding: 15px;
+}
+
+.detailActions button {
+  width: 100%;
+}
+
+.detailActions .primaryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-color: #008060;
+  background: #008060;
+  color: #fff;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #2c6ecb;
+  outline-offset: 2px;
+}
+
+@media (max-width: 1080px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .detailRail {
+    position: static;
+  }
+
+  .summaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .summaryGrid > div:nth-child(3) {
+    border-left: 0;
+  }
+
+  .summaryGrid > div:nth-child(n + 3) {
+    border-top: 1px solid #e2e4e5;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 14px;
+  }
+
+  .pageHeader {
+    align-items: flex-start;
+  }
+
+  .pageHeader h1 {
+    font-size: 24px;
+  }
+
+  .pauseButton,
+  .resumeButton {
+    min-width: 44px;
+    padding-inline: 10px;
+    font-size: 0;
+  }
+
+  .syncBar {
+    flex-wrap: wrap;
+    padding-block: 10px;
+  }
+
+  .syncBar button {
+    margin-left: 0;
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryGrid > div + div {
+    border-top: 1px solid #e2e4e5;
+    border-left: 0;
+  }
+
+  .agingGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agingGrid > div + div {
+    border-left: 0;
+  }
+
+  .agingGrid > div:nth-child(even) {
+    border-left: 1px solid #e2e4e5;
+  }
+
+  .agingGrid > div:nth-child(n + 3) {
+    border-top: 1px solid #e2e4e5;
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .selectControl select,
+  .searchControl input,
+  .searchControl {
+    width: 100%;
+  }
+
+  .tableFooter {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  tbody tr {
+    transition: none;
+  }
+}

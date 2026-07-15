@@ -1,6 +1,6 @@
 # ADR 0001: Modular monolith with separate web and worker processes
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-14
 
 ## Context

@@ -1,6 +1,6 @@
 # ADR 0002: Shopify truth with a reconciled local projection
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-14
 
 ## Context

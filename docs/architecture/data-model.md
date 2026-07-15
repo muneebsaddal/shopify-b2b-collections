@@ -1,7 +1,8 @@
 # Logical Data Model
 
-**Status:** Proposed
+**Status:** Approved
 **Date:** 2026-07-14
+**Approved:** 2026-07-15
 
 ## 1. Modeling rules
 

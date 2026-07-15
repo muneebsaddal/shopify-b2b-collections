@@ -1,6 +1,6 @@
 # ADR 0005: Render as the pilot reference deployment
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-14
 
 ## Context

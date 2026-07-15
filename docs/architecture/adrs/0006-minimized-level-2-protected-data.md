@@ -1,6 +1,6 @@
 # ADR 0006: Minimize Level-2 protected data to buyer email
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-14
 
 ## Context

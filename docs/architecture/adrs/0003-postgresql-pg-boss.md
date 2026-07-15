@@ -1,6 +1,6 @@
 # ADR 0003: PostgreSQL and pg-boss for durable jobs
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-14
 
 ## Context
