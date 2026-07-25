@@ -4,14 +4,26 @@ import { shopifyApiProject, ApiType } from "@shopify/api-codegen-preset";
 import type { IGraphQLConfig } from "graphql-config";
 
 function getConfig() {
+  const adminProject = shopifyApiProject({
+    apiType: ApiType.Admin,
+    apiVersion: ApiVersion.July26,
+    documents: [
+      "./app/**/*.{js,ts,jsx,tsx}",
+      "./app/.server/**/*.{js,ts,jsx,tsx}",
+    ],
+    outputDir: "./app/types",
+  });
+  adminProject.extensions = {
+    ...adminProject.extensions,
+    codegen: {
+      ...adminProject.extensions?.codegen,
+      ignoreNoDocuments: true,
+    },
+  };
+
   const config: IGraphQLConfig = {
     projects: {
-      default: shopifyApiProject({
-        apiType: ApiType.Admin,
-        apiVersion: ApiVersion.October25,
-        documents: ["./app/**/*.{js,ts,jsx,tsx}", "./app/.server/**/*.{js,ts,jsx,tsx}"],
-        outputDir: "./app/types",
-      }),
+      default: adminProject,
     },
   };
 

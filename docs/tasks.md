@@ -16,11 +16,16 @@ review, and no unresolved critical security or data-integrity issue.
 - [x] Add environment validation, local commands, tests, linting, type checking,
   build validation, and a single-package CI workflow.
 - [x] Replace the template demo with the first responsive collections-dashboard
-  slice and keep a no-auth preview route for visual QA.
+  slice, keep fixture data exclusive to a no-auth preview route for visual QA,
+  and show an explicit unsynced state on the authenticated route.
+- [x] Align GraphQL code generation with runtime API `2026-07` and separate
+  production process startup from the gated migration command.
 - [x] Document account-dependent linking and local setup.
 
 Acceptance: a clean checkout can install dependencies and pass test, lint,
-typecheck, Prisma validation, and production build without Shopify credentials.
+typecheck, Prisma validation, and production build without Shopify credentials;
+authenticated users never see fixture balances and container restarts never
+apply schema migrations.
 
 ### F2 - Link Shopify app and prove the platform contract
 

@@ -7,8 +7,8 @@ manual chasing.
 
 **Current status:** Requirements, PRD, architecture, data model, threat model,
 and ADRs are approved. The official Shopify React Router TypeScript foundation
-has been scaffolded and the first platform-foundation implementation task is in
-progress.
+has been scaffolded and the first platform-foundation implementation task is
+complete.
 
 ## Planning documents
 
@@ -47,8 +47,25 @@ npm run dev:preview
 ```
 
 Open `http://127.0.0.1:3000/preview` for the credential-free dashboard preview.
+Use `http://127.0.0.1:3000/preview?state=unsynced` to inspect the authenticated
+pre-sync presentation without Shopify credentials.
 After a Shopify organization and development store exist, run
 `npm run config:link`, then `npm run dev`.
+
+## Production release commands
+
+Build the immutable application image, run the schema migration once as a
+gated release step, and promote or restart web/worker processes only after that
+step succeeds:
+
+```powershell
+npm run release:migrate
+npm run docker-start
+```
+
+`docker-start` never applies migrations. Prisma Client generation happens at
+image build time; ordinary container recovery starts only the application
+process.
 
 ## Active gate
 

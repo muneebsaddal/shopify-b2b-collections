@@ -61,6 +61,123 @@ select {
   white-space: nowrap;
 }
 
+.unsyncedLabel {
+  border-radius: 999px;
+  background: #fff1c7;
+  color: #744800;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 22px;
+  padding: 0 9px;
+  white-space: nowrap;
+}
+
+.onboardingCard {
+  display: grid;
+  max-width: 760px;
+  gap: 24px;
+  border: 1px solid #d9dcdf;
+  border-radius: 10px;
+  background: #fff;
+  padding: clamp(24px, 5vw, 44px);
+  box-shadow: 0 1px 2px rgb(26 29 31 / 5%);
+}
+
+.onboardingCopy {
+  max-width: 610px;
+}
+
+.onboardingEyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: #6d4b00;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.onboardingCopy h2 {
+  margin: 0 0 10px;
+  font-size: clamp(20px, 3vw, 26px);
+  letter-spacing: -0.02em;
+}
+
+.onboardingCopy p {
+  margin: 0;
+  color: #4f555a;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.setupStatus {
+  display: grid;
+  margin: 0;
+  border-block: 1px solid #e2e4e5;
+}
+
+.setupStatus > div {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.65fr) minmax(0, 1fr);
+  gap: 16px;
+  padding: 14px 0;
+}
+
+.setupStatus > div + div {
+  border-top: 1px solid #e2e4e5;
+}
+
+.setupStatus dt,
+.setupStatus dd {
+  margin: 0;
+  font-size: 13px;
+}
+
+.setupStatus dt {
+  color: #4f555a;
+  font-weight: 600;
+}
+
+.setupStatus dd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #202427;
+  font-weight: 650;
+}
+
+.readyDot,
+.pendingDot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.readyDot {
+  background: #008060;
+}
+
+.pendingDot {
+  background: #d89b00;
+}
+
+.dataSafetyNote {
+  display: grid;
+  gap: 3px;
+  border: 1px solid #f0d279;
+  border-radius: 8px;
+  background: #fff8e5;
+  color: #563a00;
+  padding: 13px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.dataSafetyNote span {
+  color: #6d4b00;
+}
+
 .pauseButton,
 .resumeButton,
 .detailActions button,
@@ -632,6 +749,15 @@ select:focus-visible {
 
   .pageHeader h1 {
     font-size: 24px;
+  }
+
+  .onboardingCard {
+    padding: 22px 18px;
+  }
+
+  .setupStatus > div {
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
 
   .pauseButton,

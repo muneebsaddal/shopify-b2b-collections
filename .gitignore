@@ -8,6 +8,7 @@ node_modules/
 .shopify/
 build/
 dist/
+/app/types/
 .cache/
 coverage/
 logs/
