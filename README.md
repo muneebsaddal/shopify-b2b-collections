@@ -5,16 +5,15 @@ Working product concept for a public embedded Shopify app.
 **Promise:** Get Shopify wholesale invoices paid without spreadsheets or
 manual chasing.
 
-**Current status:** Requirements, PRD, architecture, data model, threat model,
-and ADRs are approved. The official Shopify React Router TypeScript foundation
-has been scaffolded and the first platform-foundation implementation task is
-complete.
+**Current status:** Requirements and planning are complete. The official
+Shopify React Router TypeScript foundation is scaffolded and active development
+has begun.
 
-## Planning documents
+## Project documents
 
-- `docs/project_plan.md` - initial product, system, delivery, and launch plan
-- `docs/development_workflow_analysis.md` - assessment and Shopify-specific
-  adaptation of the workspace development workflow
+- `docs/plan.md` - the single delivery plan and current development sequence
+- `docs/requirements.md` - approved product requirements
+- `docs/prd.md` - approved product requirements document
 - `docs/architecture/ARCHITECTURE.md` - approved-direction system design and
   architecture review gate
 - `docs/architecture/shopify-integration.md` - verified API, scopes, fields,
@@ -22,10 +21,7 @@ complete.
 - `docs/architecture/data-model.md` - tenant-aware logical data model
 - `docs/architecture/threat-model.md` - security and privacy threat model
 - `docs/architecture/adrs/` - individual architecture decisions
-- `docs/tasks.md` - ordered, testable MVP implementation backlog
-- `docs/implementation_plan.md` - active implementation slice and verification
 - `docs/design/` - approved implementation concepts and UI specifications
-- `DEVELOPMENT_WORKFLOW.md` - operating workflow for this app
 - `memory/current-state.md` - concise handoff and next-action state
 
 ## Source research
@@ -67,8 +63,7 @@ npm run docker-start
 image build time; ordinary container recovery starts only the application
 process.
 
-## Active gate
+## Current stage
 
-The platform foundation is complete. Create or expose the Shopify Partners
-organization, link the app, and prove the selected B2B scopes and fields on a
-development store before implementing the receivables projection.
+Requirements and planning are complete. Development is active, beginning with
+the tenant-aware platform runtime described in `docs/plan.md`.

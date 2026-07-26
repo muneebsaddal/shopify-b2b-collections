@@ -28,6 +28,7 @@ accounting ledger or moving money.
 
 ## Current work
 
-Task F1 in `docs/tasks.md`. Shopify CLI authentication is complete, but a Dev
-Dashboard organization/app and B2B development store still need to be created
-or made visible before F2 can start.
+Stages 1 and 2 in `docs/plan.md` are complete. Development is active at D1:
+tenant-aware persistence, shop lifecycle, durable jobs, and the core platform
+runtime. Historical Shopify proof gaps are deferred to the testing or
+deployment stage and do not block development when the app can fail safely.

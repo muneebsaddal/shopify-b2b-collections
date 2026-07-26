@@ -3,12 +3,12 @@
 ## Required context
 
 Before implementing a task, read `docs/requirements.md`, `docs/prd.md`,
-`docs/architecture/ARCHITECTURE.md`, `docs/tasks.md`, and the relevant focused
+`docs/architecture/ARCHITECTURE.md`, `docs/plan.md`, and the relevant focused
 architecture document or ADR.
 
 ## Implementation rules
 
-- Work on one task ID from `docs/tasks.md` at a time.
+- Work on one active development slice from `docs/plan.md` at a time.
 - Preserve Shopify as the source of truth for balances and payment state.
 - Scope every persisted query and unique constraint by shop unless a documented
   global identity requires otherwise.
@@ -23,6 +23,8 @@ architecture document or ADR.
 
 ## Completion checks
 
-Run `npm test`, `npm run lint`, `npm run typecheck`, `npm run prisma:validate`,
-and `npm run build`. Update documentation and `memory/current-state.md` in the
-same task. Do not mark a task complete while an external proof item is pending.
+Keep the application runnable during development and update documentation and
+`memory/current-state.md` with material changes. The full test, lint, typecheck,
+Prisma validation, and build campaign is performed in Stage 4. Missing external
+proof is recorded for Stage 4 or Stage 5 and does not block development when a
+safe fallback exists.
