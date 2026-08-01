@@ -1,7 +1,7 @@
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 
 import type { PostmarkAdapter } from "../reminders/postmark-adapter.server";
-import { afterAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import prisma from "../db.server";
 import { PgBossJobAdapter } from "./jobs/pg-boss-adapter.server";
@@ -16,6 +16,11 @@ import { acceptSyncWebhook } from "../sync/webhook-intake.server";
 
 const runPrefix = `stage4-${randomUUID().slice(0, 8)}`;
 const createdShopIds = new Set<string>();
+const originalPrivacyTombstoneKey = process.env.PRIVACY_TOMBSTONE_KEY;
+
+beforeAll(() => {
+  process.env.PRIVACY_TOMBSTONE_KEY = randomBytes(32).toString("base64");
+});
 
 async function reminderService() {
   process.env.SHOPIFY_APP_URL ??= "https://stage4.example.test";
@@ -139,14 +144,22 @@ async function createReminderFixture(label: string) {
 }
 
 afterAll(async () => {
-  const shopIds = [...createdShopIds];
-  if (shopIds.length > 0) {
-    await prisma.shop.deleteMany({ where: { id: { in: shopIds } } });
-    await prisma.deletionTombstone.deleteMany({
-      where: { shopId: { in: shopIds } },
-    });
+  try {
+    const shopIds = [...createdShopIds];
+    if (shopIds.length > 0) {
+      await prisma.shop.deleteMany({ where: { id: { in: shopIds } } });
+      await prisma.deletionTombstone.deleteMany({
+        where: { shopId: { in: shopIds } },
+      });
+    }
+  } finally {
+    if (originalPrivacyTombstoneKey === undefined) {
+      delete process.env.PRIVACY_TOMBSTONE_KEY;
+    } else {
+      process.env.PRIVACY_TOMBSTONE_KEY = originalPrivacyTombstoneKey;
+    }
+    await prisma.$disconnect();
   }
-  await prisma.$disconnect();
 });
 
 describe("Stage 4 PostgreSQL integration", () => {

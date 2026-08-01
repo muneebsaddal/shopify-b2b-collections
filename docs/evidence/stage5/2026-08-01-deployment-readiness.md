@@ -50,6 +50,11 @@ Router RSC-only advisory chain. This application does not enable the unstable
 RSC APIs; npm still proposes the inappropriate forced 7.11.0 downgrade rather
 than a patched React Router 7 release. No automatic downgrade was applied.
 
+Post-publication GitHub Actions exposed that the PostgreSQL privacy integration
+file inherited its tombstone key from the local `.env`. The test now generates
+and restores its own synthetic 32-byte key. All 71 tests pass with both privacy
+and session keys absent from the parent process, matching the CI environment.
+
 Live provider results are never inferred from local fixtures.
 
 ## Live gates still open

@@ -221,6 +221,9 @@ PostgreSQL integration checks; lint; TypeScript; Prisma validation; production
 build; YAML/Markdown parsing; whitespace checks; and a Docker build from the
 pinned Node base digest. Final-image inspection confirms the non-root `node`
 user and the web, worker, Prisma, migration, and deployment executables/files.
+GitHub Actions initially exposed that the privacy integration file inherited a
+tombstone key from the local `.env`; it now owns and restores a synthetic test
+key, and the full suite passes with the parent privacy/session keys absent.
 
 No external environment has been created. The reviewed release is published to
 the private GitHub repository, but this workspace has no authenticated Render,
