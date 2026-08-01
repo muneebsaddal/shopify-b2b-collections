@@ -13,24 +13,854 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Session {
-  id            String    @id
-  shop          String
-  state         String
-  isOnline      Boolean   @default(false)
-  scope         String?
-  expires       DateTime?
-  accessToken   String
-  userId        BigInt?
-  firstName     String?
-  lastName      String?
-  email         String?
-  accountOwner  Boolean   @default(false)
-  locale        String?
-  collaborator  Boolean?  @default(false)
-  emailVerified Boolean?  @default(false)
-  refreshToken        String?
-  refreshTokenExpires DateTime?
+enum ShopStatus {
+  ACTIVE
+  INACTIVE
+  UNINSTALLED
+}
 
+enum ShopSyncStatus {
+  NOT_STARTED
+  SYNCING
+  PARTIAL
+  RECONCILING
+  FRESH
+  STALE
+  FAILED
+}
+
+enum AuditActorType {
+  SHOPIFY
+  MERCHANT
+  WORKER
+  OPERATOR
+  SYSTEM
+}
+
+enum ProjectionStatus {
+  ACTIVE
+  DELETED
+  REDACTED
+}
+
+enum ReceivableStatus {
+  OPEN
+  PAID
+  CANCELED
+  REFUNDED
+  CLOSED
+}
+
+enum AgingBucket {
+  CURRENT
+  ONE_TO_THIRTY
+  THIRTY_ONE_TO_SIXTY
+  SIXTY_ONE_TO_NINETY
+  NINETY_PLUS
+}
+
+enum WebhookReceiptState {
+  QUEUED
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
+enum SyncWorkKind {
+  INITIAL
+  WEBHOOK_REFRESH
+  RECONCILIATION
+  MANUAL_RETRY
+}
+
+enum SyncWorkState {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum CollectionNoteType {
+  INTERNAL
+  EXTERNAL_PAYMENT
+  DISPUTE
+  SNOOZE_REASON
+}
+
+enum PromiseToPayStatus {
+  OPEN
+  FULFILLED
+  BROKEN
+  CANCELED
+  SUPERSEDED
+}
+
+enum CollectionActionType {
+  NOTE_CREATED
+  PROMISE_CREATED
+  PROMISE_FULFILLED
+  PROMISE_BROKEN
+  PROMISE_CANCELED
+  PROMISE_SUPERSEDED
+  SNOOZED
+  DAILY_DISMISSED
+  REMINDER_SENT
+  STATEMENT_GENERATED
+  SUPPRESSION_CHANGED
+}
+
+enum ReminderPolicyState {
+  DRAFT
+  APPROVED
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum ReplyToVerificationState {
+  PENDING
+  VERIFIED
+  EXPIRED
+}
+
+enum ReminderDeliveryState {
+  RESERVED
+  VALIDATING
+  SENDING
+  UNKNOWN
+  ACCEPTED
+  DELIVERED
+  DEFERRED
+  BOUNCED
+  COMPLAINED
+  SUPPRESSED
+  FAILED
+  CANCELED
+}
+
+enum SuppressionSource {
+  MERCHANT
+  BOUNCE
+  COMPLAINT
+  PROVIDER
+  PRIVACY
+}
+
+enum StatementRunState {
+  READY
+  FAILED
+}
+
+enum EntitlementState {
+  ACTIVE
+  FREE
+  FROZEN
+  CANCELED
+  UNKNOWN
+}
+
+enum PrivacyRequestType {
+  CUSTOMER_DATA
+  CUSTOMER_REDACT
+  SHOP_REDACT
+  UNINSTALL_CLEANUP
+}
+
+enum PrivacyRequestState {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum SafetyControlKey {
+  REMINDER_SENDS
+  SHOPIFY_IMPORTS
+  STATEMENTS
+  BILLING_CHANGES
+  PROVIDER_WEBHOOKS
+}
+
+model Shop {
+  id                    String                       @id @default(cuid())
+  shopifyShopGid        String?                      @unique
+  shopDomain            String                       @unique
+  status                ShopStatus                   @default(INACTIVE)
+  timezone              String                       @default("UTC")
+  installedAt           DateTime                     @default(now())
+  uninstalledAt         DateTime?
+  globalRemindersPaused Boolean                      @default(true)
+  scopesComplete        Boolean                      @default(false)
+  syncStatus            ShopSyncStatus               @default(NOT_STARTED)
+  lastReconciledAt      DateTime?
+  settingsVersion       Int                          @default(1)
+  onboardingCompletedAt DateTime?
+  version               Int                          @default(1)
+  createdAt             DateTime                     @default(now())
+  updatedAt             DateTime                     @updatedAt
+  sessions              Session[]
+  auditEvents           AuditEvent[]
+  protectedDataAccesses ProtectedDataAccessLog[]
+  companies             Company[]
+  receivables           Receivable[]
+  webhookReceipts       WebhookReceipt[]
+  syncWorkItems         SyncWorkItem[]
+  reconciliationCursors ReconciliationCursor[]
+  collectionNotes       CollectionNote[]
+  promisesToPay         PromiseToPay[]
+  collectionActions     CollectionAction[]
+  reliabilitySnapshots  ReliabilitySnapshot[]
+  reminderPolicies      ReminderPolicy[]
+  replyToVerifications  ReplyToVerification[]
+  reminderDeliveries    ReminderDelivery[]
+  recipientSuppressions RecipientSuppression[]
+  companySuppressions   CompanyReminderSuppression[]
+  emailProviderEvents   EmailProviderEvent[]
+  statementRuns         StatementRun[]
+  entitlementSnapshots  EntitlementSnapshot[]
+  privacyRequests       PrivacyRequest[]
+  safetyControls        SafetyControl[]
+
+  @@map("shops")
+}
+
+model Company {
+  id                    String                       @id @default(cuid())
+  shopId                String
+  shopifyCompanyGid     String
+  displayName           String
+  status                ProjectionStatus             @default(ACTIVE)
+  shopifyUpdatedAt      DateTime?
+  lastObservedAt        DateTime                     @default(now())
+  reconciledAt          DateTime?
+  createdAt             DateTime                     @default(now())
+  updatedAt             DateTime                     @updatedAt
+  shop                  Shop                         @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  locations             CompanyLocation[]
+  contacts              CompanyContact[]
+  receivables           Receivable[]
+  collectionNotes       CollectionNote[]
+  promisesToPay         PromiseToPay[]
+  collectionActions     CollectionAction[]
+  reliabilitySnapshots  ReliabilitySnapshot[]
+  recipientSuppressions RecipientSuppression[]
+  reminderSuppressions  CompanyReminderSuppression[]
+  statementRuns         StatementRun[]
+
+  @@unique([shopId, shopifyCompanyGid])
+  @@index([shopId, status])
+  @@map("companies")
+}
+
+model CompanyLocation {
+  id                 String           @id @default(cuid())
+  shopId             String
+  companyId          String
+  shopifyLocationGid String
+  displayLabel       String?
+  status             ProjectionStatus @default(ACTIVE)
+  shopifyUpdatedAt   DateTime?
+  lastObservedAt     DateTime         @default(now())
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  company            Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  receivables        Receivable[]
+
+  @@unique([shopId, shopifyLocationGid])
+  @@index([shopId, companyId])
+  @@map("company_locations")
+}
+
+model CompanyContact {
+  id                    String                 @id @default(cuid())
+  shopId                String
+  companyId             String
+  companyLocationId     String?
+  shopifyContactGid     String
+  shopifyCustomerGid    String?
+  encryptedEmail        String?
+  emailHmac             String?
+  emailValid            Boolean                @default(false)
+  isDefault             Boolean                @default(false)
+  status                ProjectionStatus       @default(ACTIVE)
+  shopifyUpdatedAt      DateTime?
+  lastObservedAt        DateTime               @default(now())
+  redactedAt            DateTime?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  company               Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  reminderDeliveries    ReminderDelivery[]
+  recipientSuppressions RecipientSuppression[]
+
+  @@unique([shopId, shopifyContactGid])
+  @@index([shopId, companyId])
+  @@index([shopId, emailHmac])
+  @@map("company_contacts")
+}
+
+model Receivable {
+  id                 String                      @id @default(cuid())
+  shopId             String
+  shopifyOrderGid    String
+  companyId          String?
+  companyLocationId  String?
+  orderName          String
+  status             ReceivableStatus            @default(OPEN)
+  originalTotal      Decimal                     @db.Decimal(20, 4)
+  outstandingAmount  Decimal                     @db.Decimal(20, 4)
+  currency           String
+  issuedAt           DateTime?
+  dueAt              DateTime?
+  daysOverdue        Int?
+  agingBucket        AgingBucket?
+  paymentTermsType   String?
+  shopifyUpdatedAt   DateTime?
+  lastObservedAt     DateTime                    @default(now())
+  reconciledAt       DateTime?
+  createdAt          DateTime                    @default(now())
+  updatedAt          DateTime                    @updatedAt
+  shop               Shop                        @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  company            Company?                    @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  companyLocation    CompanyLocation?            @relation(fields: [companyLocationId], references: [id], onDelete: SetNull)
+  paymentSchedules   PaymentSchedule[]
+  transitions        ReceivableStateTransition[]
+  collectionNotes    CollectionNote[]
+  promisesToPay      PromiseToPay[]
+  collectionActions  CollectionAction[]
+  reminderDeliveries ReminderDelivery[]
+
+  @@unique([shopId, shopifyOrderGid])
+  @@index([shopId, status, dueAt])
+  @@index([shopId, currency, agingBucket, dueAt])
+  @@map("receivables")
+}
+
+model PaymentSchedule {
+  id                 String     @id @default(cuid())
+  shopId             String
+  receivableId       String
+  shopifyScheduleGid String
+  balanceDue         Decimal    @db.Decimal(20, 4)
+  totalBalance       Decimal    @db.Decimal(20, 4)
+  currency           String
+  dueAt              DateTime?
+  issuedAt           DateTime?
+  completedAt        DateTime?
+  shopifyUpdatedAt   DateTime?
+  lastObservedAt     DateTime   @default(now())
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  receivable         Receivable @relation(fields: [receivableId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, shopifyScheduleGid])
+  @@index([shopId, receivableId])
+  @@map("payment_schedules")
+}
+
+model ReceivableStateTransition {
+  id               String            @id @default(cuid())
+  shopId           String
+  receivableId     String
+  previousStatus   ReceivableStatus?
+  currentStatus    ReceivableStatus
+  previousBalance  Decimal?          @db.Decimal(20, 4)
+  currentBalance   Decimal           @db.Decimal(20, 4)
+  reason           String
+  sourceOccurredAt DateTime?
+  correlationId    String
+  createdAt        DateTime          @default(now())
+  receivable       Receivable        @relation(fields: [receivableId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, receivableId, createdAt])
+  @@map("receivable_state_transitions")
+}
+
+model CollectionNote {
+  id            String             @id @default(cuid())
+  shopId        String
+  companyId     String?
+  receivableId  String?
+  type          CollectionNoteType
+  encryptedBody String
+  actorId       String?
+  effectiveAt   DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  shop          Shop               @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  company       Company?           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  receivable    Receivable?        @relation(fields: [receivableId], references: [id], onDelete: Cascade)
+  actions       CollectionAction[]
+
+  @@index([shopId, companyId, createdAt(sort: Desc)])
+  @@index([shopId, receivableId, createdAt(sort: Desc)])
+  @@map("collection_notes")
+}
+
+model PromiseToPay {
+  id             String             @id @default(cuid())
+  shopId         String
+  companyId      String?
+  receivableId   String
+  promisedAt     DateTime
+  promisedAmount Decimal?           @db.Decimal(20, 4)
+  currency       String?
+  encryptedNote  String?
+  status         PromiseToPayStatus @default(OPEN)
+  creatorId      String?
+  fulfilledAt    DateTime?
+  brokenAt       DateTime?
+  canceledAt     DateTime?
+  supersededAt   DateTime?
+  supersededById String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  shop           Shop               @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  company        Company?           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  receivable     Receivable         @relation(fields: [receivableId], references: [id], onDelete: Cascade)
+  supersededBy   PromiseToPay?      @relation("PromiseSupersession", fields: [supersededById], references: [id], onDelete: SetNull)
+  supersedes     PromiseToPay[]     @relation("PromiseSupersession")
+  actions        CollectionAction[]
+
+  @@index([shopId, receivableId, status, promisedAt])
+  @@index([shopId, companyId, createdAt(sort: Desc)])
+  @@map("promises_to_pay")
+}
+
+model CollectionAction {
+  id           String               @id @default(cuid())
+  shopId       String
+  companyId    String?
+  receivableId String?
+  noteId       String?
+  promiseId    String?
+  type         CollectionActionType
+  safeSummary  String
+  actorId      String?
+  effectiveAt  DateTime?
+  createdAt    DateTime             @default(now())
+  shop         Shop                 @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  company      Company?             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  receivable   Receivable?          @relation(fields: [receivableId], references: [id], onDelete: Cascade)
+  note         CollectionNote?      @relation(fields: [noteId], references: [id], onDelete: SetNull)
+  promise      PromiseToPay?        @relation(fields: [promiseId], references: [id], onDelete: SetNull)
+
+  @@index([shopId, companyId, createdAt(sort: Desc)])
+  @@index([shopId, receivableId, createdAt(sort: Desc)])
+  @@map("collection_actions")
+}
+
+model ReliabilitySnapshot {
+  id                   String   @id @default(cuid())
+  shopId               String
+  companyId            String
+  eligibleInvoiceCount Int
+  paidLateCount        Int
+  medianDaysLate       Int?
+  averageDaysLate      Decimal? @db.Decimal(10, 2)
+  brokenPromiseCount   Int
+  calculationWindow    String
+  algorithmVersion     String
+  calculatedAt         DateTime @default(now())
+  shop                 Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  company              Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, companyId, calculatedAt(sort: Desc)])
+  @@map("reliability_snapshots")
+}
+
+model WebhookReceipt {
+  id                String              @id @default(cuid())
+  shopId            String
+  provider          String
+  externalReceiptId String
+  eventId           String?
+  topic             String
+  apiVersion        String?
+  sourceOccurredAt  DateTime?
+  payloadHash       String
+  state             WebhookReceiptState @default(QUEUED)
+  attempts          Int                 @default(0)
+  receivedAt        DateTime            @default(now())
+  processedAt       DateTime?
+  errorCode         String?
+  correlationId     String
+  shop              Shop                @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  syncWorkItems     SyncWorkItem[]
+
+  @@unique([provider, shopId, externalReceiptId])
+  @@index([shopId, state, receivedAt])
+  @@map("webhook_receipts")
+}
+
+model SyncWorkItem {
+  id            String          @id @default(cuid())
+  shopId        String
+  receiptId     String?
+  kind          SyncWorkKind
+  resourceType  String
+  resourceGid   String?
+  state         SyncWorkState   @default(QUEUED)
+  attempts      Int             @default(0)
+  availableAt   DateTime        @default(now())
+  completedAt   DateTime?
+  errorCode     String?
+  correlationId String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  shop          Shop            @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  receipt       WebhookReceipt? @relation(fields: [receiptId], references: [id], onDelete: SetNull)
+
+  @@index([shopId, state, availableAt])
+  @@index([receiptId])
+  @@map("sync_work_items")
+}
+
+model ReconciliationCursor {
+  id              String        @id @default(cuid())
+  shopId          String
+  resourceType    String
+  cursor          String?
+  watermark       DateTime?
+  lastSuccessAt   DateTime?
+  lastFullSweepAt DateTime?
+  state           SyncWorkState @default(QUEUED)
+  mismatchCount   Int           @default(0)
+  errorCode       String?
+  updatedAt       DateTime      @updatedAt
+  shop            Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, resourceType])
+  @@map("reconciliation_cursors")
+}
+
+model Session {
+  id                      String    @id
+  shopId                  String
+  shop                    String
+  state                   String
+  isOnline                Boolean   @default(false)
+  scope                   String?
+  grantedScopeFingerprint String?
+  expires                 DateTime?
+  accessToken             String
+  refreshToken            String?
+  refreshTokenExpires     DateTime?
+  tokenVersion            Int       @default(1)
+  rotatedAt               DateTime?
+  revokedAt               DateTime?
+  userId                  BigInt?
+  accountOwner            Boolean   @default(false)
+  collaborator            Boolean?  @default(false)
+  emailVerified           Boolean?  @default(false)
+  shopRecord              Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, id])
+  @@index([shopId, isOnline, expires])
   @@index([shop])
+  @@map("shopify_sessions")
+}
+
+model AuditEvent {
+  id                 String         @id @default(cuid())
+  shopId             String
+  actorType          AuditActorType
+  actorId            String?
+  action             String
+  targetType         String
+  targetId           String?
+  safeBefore         Json?
+  safeAfter          Json?
+  reason             String?
+  correlationId      String
+  applicationVersion String?
+  createdAt          DateTime       @default(now())
+  shop               Shop           @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, createdAt(sort: Desc)])
+  @@index([correlationId])
+  @@map("audit_events")
+}
+
+model ProtectedDataAccessLog {
+  id                String         @id @default(cuid())
+  shopId            String
+  actorType         AuditActorType
+  actorId           String?
+  purposeCode       String
+  resourceCategory  String
+  action            String
+  correlationId     String
+  approvalReference String?
+  incidentReference String?
+  outcome           String
+  createdAt         DateTime       @default(now())
+  shop              Shop           @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, createdAt(sort: Desc)])
+  @@index([correlationId])
+  @@map("protected_data_access_logs")
+}
+
+model ReplyToVerification {
+  id             String                   @id @default(cuid())
+  shopId         String
+  email          String
+  tokenHash      String
+  state          ReplyToVerificationState @default(PENDING)
+  expiresAt      DateTime
+  verifiedAt     DateTime?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  shop           Shop                     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  policyVersions ReminderPolicyVersion[]
+
+  @@unique([shopId, email])
+  @@index([shopId, state, expiresAt])
+  @@map("reply_to_verifications")
+}
+
+model ReminderPolicy {
+  id              String                  @id @default(cuid())
+  shopId          String
+  name            String
+  state           ReminderPolicyState     @default(DRAFT)
+  timezone        String
+  activeVersionId String?                 @unique
+  approvedBy      String?
+  approvedAt      DateTime?
+  version         Int                     @default(1)
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  shop            Shop                    @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  activeVersion   ReminderPolicyVersion?  @relation("ActivePolicyVersion", fields: [activeVersionId], references: [id], onDelete: SetNull)
+  versions        ReminderPolicyVersion[] @relation("PolicyVersions")
+
+  @@index([shopId, state])
+  @@map("reminder_policies")
+}
+
+model ReminderPolicyVersion {
+  id                    String                @id @default(cuid())
+  shopId                String
+  reminderPolicyId      String
+  versionNumber         Int
+  senderDisplayName     String
+  replyToVerificationId String
+  minimumOutstanding    Decimal               @default(0) @db.Decimal(20, 4)
+  previewedAt           DateTime?
+  approvedAt            DateTime?
+  createdAt             DateTime              @default(now())
+  policy                ReminderPolicy        @relation("PolicyVersions", fields: [reminderPolicyId], references: [id], onDelete: Cascade)
+  activeForPolicy       ReminderPolicy?       @relation("ActivePolicyVersion")
+  replyToVerification   ReplyToVerification   @relation(fields: [replyToVerificationId], references: [id], onDelete: Cascade)
+  stages                ReminderPolicyStage[]
+  deliveries            ReminderDelivery[]
+
+  @@unique([shopId, reminderPolicyId, versionNumber])
+  @@index([shopId, reminderPolicyId])
+  @@map("reminder_policy_versions")
+}
+
+model ReminderPolicyStage {
+  id                      String                @id @default(cuid())
+  shopId                  String
+  reminderPolicyVersionId String
+  stageKey                String
+  offsetDays              Int
+  sortOrder               Int
+  subjectTemplate         String
+  encryptedBodyTemplate   String
+  enabled                 Boolean               @default(true)
+  createdAt               DateTime              @default(now())
+  policyVersion           ReminderPolicyVersion @relation(fields: [reminderPolicyVersionId], references: [id], onDelete: Cascade)
+  deliveries              ReminderDelivery[]
+
+  @@unique([shopId, reminderPolicyVersionId, stageKey])
+  @@index([shopId, enabled, offsetDays])
+  @@map("reminder_policy_stages")
+}
+
+model ReminderDelivery {
+  id                      String                @id @default(cuid())
+  shopId                  String
+  receivableId            String
+  companyContactId        String
+  reminderPolicyVersionId String
+  reminderPolicyStageId   String
+  reservationKey          String
+  state                   ReminderDeliveryState @default(RESERVED)
+  encryptedRecipient      String?
+  encryptedSubject        String?
+  encryptedBody           String?
+  providerMessageId       String?
+  attemptCount            Int                   @default(0)
+  eligibilityEvidenceHash String?
+  scheduledAt             DateTime
+  reservedAt              DateTime              @default(now())
+  sentAt                  DateTime?
+  finalAt                 DateTime?
+  errorClass              String?
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  shop                    Shop                  @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  receivable              Receivable            @relation(fields: [receivableId], references: [id], onDelete: Cascade)
+  companyContact          CompanyContact        @relation(fields: [companyContactId], references: [id], onDelete: Restrict)
+  policyVersion           ReminderPolicyVersion @relation(fields: [reminderPolicyVersionId], references: [id], onDelete: Restrict)
+  policyStage             ReminderPolicyStage   @relation(fields: [reminderPolicyStageId], references: [id], onDelete: Restrict)
+  providerEvents          EmailProviderEvent[]
+
+  @@unique([shopId, receivableId, reminderPolicyVersionId, reminderPolicyStageId])
+  @@unique([shopId, reservationKey])
+  @@unique([providerMessageId])
+  @@index([shopId, state, scheduledAt])
+  @@map("reminder_deliveries")
+}
+
+model RecipientSuppression {
+  id               String            @id @default(cuid())
+  shopId           String
+  emailHmac        String
+  companyContactId String?
+  companyId        String?
+  source           SuppressionSource
+  reasonCode       String
+  activeAt         DateTime          @default(now())
+  expiresAt        DateTime?
+  releasedAt       DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  shop             Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  companyContact   CompanyContact?   @relation(fields: [companyContactId], references: [id], onDelete: SetNull)
+  company          Company?          @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  @@index([shopId, emailHmac, releasedAt])
+  @@map("recipient_suppressions")
+}
+
+model CompanyReminderSuppression {
+  id         String    @id @default(cuid())
+  shopId     String
+  companyId  String
+  reasonCode String
+  activeAt   DateTime  @default(now())
+  expiresAt  DateTime?
+  releasedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  shop       Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, companyId])
+  @@index([shopId, releasedAt, expiresAt])
+  @@map("company_reminder_suppressions")
+}
+
+model EmailProviderEvent {
+  id                 String           @id @default(cuid())
+  shopId             String
+  reminderDeliveryId String
+  providerEventId    String
+  eventType          String
+  providerAt         DateTime?
+  diagnosticCode     String?
+  receivedAt         DateTime         @default(now())
+  processedAt        DateTime?
+  shop               Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  delivery           ReminderDelivery @relation(fields: [reminderDeliveryId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, providerEventId])
+  @@index([shopId, reminderDeliveryId, receivedAt])
+  @@map("email_provider_events")
+}
+
+model StatementRun {
+  id                    String            @id @default(cuid())
+  shopId                String
+  companyId             String
+  state                 StatementRunState @default(READY)
+  asOf                  DateTime
+  currencySet           String[]
+  includedReceivableIds String[]
+  contentHash           String
+  createdBy             String?
+  createdAt             DateTime          @default(now())
+  shop                  Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  company               Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, companyId, createdAt(sort: Desc)])
+  @@map("statement_runs")
+}
+
+model EntitlementSnapshot {
+  id               String           @id @default(cuid())
+  shopId           String
+  planHandle       String
+  subscriptionId   String?
+  state            EntitlementState
+  limits           Json
+  source           String
+  sourceObservedAt DateTime?
+  verifiedAt       DateTime          @default(now())
+  expiresAt        DateTime
+  createdAt        DateTime          @default(now())
+  shop             Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, verifiedAt(sort: Desc)])
+  @@index([shopId, expiresAt])
+  @@map("entitlement_snapshots")
+}
+
+model PrivacyRequest {
+  id                        String              @id @default(cuid())
+  shopId                    String
+  externalRequestId         String
+  type                      PrivacyRequestType
+  state                     PrivacyRequestState @default(QUEUED)
+  subjectShopifyCustomerGid String?
+  subjectShopifyOrderGids   String[]
+  dueAt                     DateTime
+  attempts                  Int                 @default(0)
+  evidenceReference         String?
+  errorCode                 String?
+  completedAt               DateTime?
+  createdAt                 DateTime            @default(now())
+  updatedAt                 DateTime            @updatedAt
+  shop                      Shop                @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, externalRequestId])
+  @@index([shopId, state, dueAt])
+  @@index([state, dueAt])
+  @@map("privacy_requests")
+}
+
+model DeletionTombstone {
+  id             String             @id @default(cuid())
+  scopeKey       String             @unique
+  shopId         String?
+  shopDomainHash String
+  requestType    PrivacyRequestType
+  subjectHash    String?
+  requestedAt    DateTime
+  completedAt    DateTime           @default(now())
+  createdAt      DateTime           @default(now())
+
+  @@index([shopDomainHash, completedAt])
+  @@map("deletion_tombstones")
+}
+
+model SafetyControl {
+  id          String           @id @default(cuid())
+  shopId      String?
+  controlKey  SafetyControlKey
+  blocked     Boolean          @default(false)
+  reasonCode  String
+  actorId     String?
+  version     Int              @default(1)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  shop        Shop?            @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, controlKey])
+  @@index([controlKey, blocked])
+  @@map("safety_controls")
 }

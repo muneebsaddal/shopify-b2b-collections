@@ -11,7 +11,8 @@ describe("platform foundation contracts", () => {
     const authenticatedRoute = readProjectFile("app/routes/app._index.tsx");
     const previewRoute = readProjectFile("app/routes/preview.tsx");
 
-    expect(authenticatedRoute).toContain("UnsyncedDashboard");
+    expect(authenticatedRoute).toContain("AgingDashboard");
+    expect(authenticatedRoute).toContain("loadAgingDashboard");
     expect(authenticatedRoute).not.toContain("CollectionsDashboard");
     expect(previewRoute).toContain("<CollectionsDashboard preview />");
     expect(previewRoute).toContain('searchParams.get("state") === "unsynced"');
@@ -34,5 +35,11 @@ describe("platform foundation contracts", () => {
       "prisma migrate deploy",
     );
     expect(packageJson.scripts["docker-start"]).not.toContain("migrate");
+  });
+
+  it("enforces the active tenant boundary in the embedded app shell", () => {
+    const appRoute = readProjectFile("app/routes/app.tsx");
+
+    expect(appRoute).toContain("requireActiveShop(session.shop)");
   });
 });

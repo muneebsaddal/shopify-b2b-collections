@@ -34,38 +34,54 @@ export const COMPANIES_CONTRACT_QUERY = `#graphql
         name
         createdAt
         updatedAt
-        locations(first: 25) {
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-          nodes {
+      }
+    }
+  }
+`;
+
+export const COMPANY_LOCATIONS_PAGE_CONTRACT_QUERY = `#graphql
+  query D2CompanyLocationsPage($id: ID!, $first: Int!, $after: String) {
+    company(id: $id) {
+      id
+      locations(first: $first, after: $after) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          id
+          name
+          createdAt
+          updatedAt
+          company {
             id
-            name
-            createdAt
-            updatedAt
-            company {
-              id
-            }
           }
         }
-        contacts(first: 25) {
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-          nodes {
+      }
+    }
+  }
+`;
+
+export const COMPANY_CONTACTS_PAGE_CONTRACT_QUERY = `#graphql
+  query D2CompanyContactsPage($id: ID!, $first: Int!, $after: String) {
+    company(id: $id) {
+      id
+      contacts(first: $first, after: $after) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          id
+          createdAt
+          updatedAt
+          company {
             id
-            createdAt
-            updatedAt
-            company {
-              id
-            }
-            customer {
-              id
-              defaultEmailAddress {
-                emailAddress
-              }
+          }
+          customer {
+            id
+            defaultEmailAddress {
+              emailAddress
             }
           }
         }
@@ -87,10 +103,8 @@ const MONEY_BAG_FIELDS = `#graphql
   }
 `;
 
-export const RECEIVABLE_ORDER_CONTRACT_QUERY = `#graphql
-  ${MONEY_BAG_FIELDS}
-  query F2ReceivableOrderContract($id: ID!) {
-    order(id: $id) {
+const RECEIVABLE_ORDER_FIELDS = `#graphql
+  fragment D2ReceivableOrderFields on Order {
       id
       name
       createdAt
@@ -174,11 +188,22 @@ export const RECEIVABLE_ORDER_CONTRACT_QUERY = `#graphql
           ...F2MoneyBagFields
         }
       }
+  }
+`;
+
+export const RECEIVABLE_ORDER_CONTRACT_QUERY = `#graphql
+  ${MONEY_BAG_FIELDS}
+  ${RECEIVABLE_ORDER_FIELDS}
+  query F2ReceivableOrderContract($id: ID!) {
+    order(id: $id) {
+      ...D2ReceivableOrderFields
     }
   }
 `;
 
 export const RECEIVABLE_ORDERS_PAGE_CONTRACT_QUERY = `#graphql
+  ${MONEY_BAG_FIELDS}
+  ${RECEIVABLE_ORDER_FIELDS}
   query F2ReceivableOrdersPageContract(
     $first: Int!
     $after: String
@@ -190,8 +215,7 @@ export const RECEIVABLE_ORDERS_PAGE_CONTRACT_QUERY = `#graphql
         endCursor
       }
       nodes {
-        id
-        updatedAt
+        ...D2ReceivableOrderFields
       }
     }
   }

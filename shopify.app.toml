@@ -21,6 +21,10 @@ api_version = "2026-07"
   topics = [ "app/scopes_update" ]
 
   [[webhooks.subscriptions]]
+  uri = "/webhooks/sync"
+  topics = [ "orders/create", "orders/updated", "orders/paid", "orders/cancelled", "refunds/create", "order_transactions/create", "payment_schedules/due", "payment_terms/create", "payment_terms/update", "payment_terms/delete", "companies/create", "companies/update", "companies/delete", "company_locations/create", "company_locations/update", "company_locations/delete", "company_contacts/create", "company_contacts/update", "company_contacts/delete" ]
+
+  [[webhooks.subscriptions]]
   uri = "/webhooks/customers/data_request"
   compliance_topics = [ "customers/data_request" ]
 

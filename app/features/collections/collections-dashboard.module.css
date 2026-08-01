@@ -16,7 +16,8 @@
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -192,6 +193,179 @@ select {
   cursor: pointer;
 }
 
+.detailPageHeader {
+  margin: 22px 0 16px;
+}
+
+.detailPageHeader h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.detailPageHeader p {
+  margin: 7px 0 0;
+  color: #61676d;
+}
+
+.historyGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+  gap: 16px;
+  align-items: start;
+  margin-top: 16px;
+}
+
+.historyPanel,
+.reliabilityPanel {
+  border: 1px solid #d9dcdf;
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+}
+
+.historyPanel h2 {
+  margin: 0 0 14px;
+  font-size: 16px;
+}
+
+.reliabilityPanel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.reliabilityPanel > div {
+  display: grid;
+  gap: 4px;
+}
+
+.reliabilityPanel strong {
+  font-size: 21px;
+}
+
+.reliabilityPanel span,
+.reliabilityPanel p {
+  color: #61676d;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.reliabilityPanel p {
+  grid-column: 1 / -1;
+  margin: 4px 0 0;
+}
+
+.priorityReasons,
+.noteList {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.priorityReasons {
+  color: #4f555a;
+  font-size: 11px;
+}
+
+.queueActions,
+.inlineForm,
+.noteForm,
+.promiseButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: end;
+}
+
+.inlineForm label,
+.noteForm label {
+  display: grid;
+  gap: 4px;
+  color: #4f555a;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.inlineForm input,
+.noteForm input,
+.noteForm select,
+.noteForm textarea {
+  min-height: 32px;
+  border: 1px solid #c9cccf;
+  border-radius: 6px;
+  background: #fff;
+  padding: 7px 9px;
+  color: #202427;
+}
+
+.noteForm {
+  display: grid;
+  margin-bottom: 16px;
+}
+
+.noteForm textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  border: 1px solid #008060;
+  border-radius: 7px;
+  background: #008060;
+  color: #fff;
+  padding: 0 13px;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.historyPanel fieldset {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #d9dcdf;
+  border-radius: 7px;
+  padding: 12px;
+}
+
+.historyPanel pre {
+  overflow-x: auto;
+  border-radius: 6px;
+  background: #f7f8f8;
+  padding: 10px;
+  font: 12px/1.5 ui-monospace, monospace;
+  white-space: pre-wrap;
+}
+
+.noteList li {
+  border-top: 1px solid #e2e4e5;
+  padding: 11px 0;
+  color: #33383c;
+  font-size: 12px;
+}
+
+.noteList p {
+  margin: 5px 0;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.noteList time {
+  color: #61676d;
+  font-size: 11px;
+}
+
+.emptyCell {
+  color: #61676d;
+}
+
 .pauseButton,
 .resumeButton {
   display: inline-flex;
@@ -274,6 +448,14 @@ select {
   color: #2c6ecb;
   font-size: 13px;
   cursor: pointer;
+}
+
+.syncBar form {
+  margin-left: auto;
+}
+
+.syncBar form button {
+  margin-left: 0;
 }
 
 .syncIcon {
@@ -395,6 +577,7 @@ select {
 }
 
 .selectControl select,
+.selectControl input,
 .searchControl input {
   height: 32px;
   min-width: 94px;
@@ -485,6 +668,18 @@ td button {
   padding: 0;
   text-align: left;
   cursor: pointer;
+}
+
+td a {
+  display: grid;
+  gap: 2px;
+  color: inherit;
+  text-decoration: none;
+}
+
+td a:hover strong,
+td a:focus-visible strong {
+  text-decoration: underline;
 }
 
 td > span,
@@ -711,7 +906,8 @@ td:nth-child(2) > span {
 
 button:focus-visible,
 input:focus-visible,
-select:focus-visible {
+select:focus-visible,
+textarea:focus-visible {
   outline: 2px solid #2c6ecb;
   outline-offset: 2px;
 }
@@ -735,6 +931,10 @@ select:focus-visible {
 
   .summaryGrid > div:nth-child(n + 3) {
     border-top: 1px solid #e2e4e5;
+  }
+
+  .historyGrid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -817,6 +1017,10 @@ select:focus-visible {
     flex-direction: column;
     justify-content: center;
     padding-block: 10px;
+  }
+
+  .reliabilityPanel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

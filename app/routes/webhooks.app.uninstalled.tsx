@@ -1,16 +1,21 @@
 import type { ActionFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
-import db from "../db.server";
+import { correlationIdFromRequest } from "../operations/correlation.server";
+import { scheduleUninstallCleanup } from "../privacy/privacy-service.server";
+import { uninstallShop } from "../tenancy/shop-lifecycle.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { shop, session, topic } = await authenticate.webhook(request);
-
-  console.log(`Received ${topic} webhook for ${shop}`);
-
-  // Webhook requests can trigger multiple times and after an app has already been uninstalled.
-  // If this webhook already ran, the session may have been deleted previously.
-  if (session) {
-    await db.session.deleteMany({ where: { shop } });
+  const { shop } = await authenticate.webhook(request);
+  const correlationId = correlationIdFromRequest(request);
+  const uninstalled = await uninstallShop({
+    shopDomain: shop,
+    correlationId,
+  });
+  if (uninstalled) {
+    await scheduleUninstallCleanup({
+      ...uninstalled,
+      correlationId,
+    });
   }
 
   return new Response();

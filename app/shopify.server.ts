@@ -4,8 +4,14 @@ import {
   AppDistribution,
   shopifyApp,
 } from "@shopify/shopify-app-react-router/server";
-import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
 import prisma from "./db.server";
+import { createCorrelationId } from "./operations/correlation.server";
+import { EncryptedPrismaSessionStorage } from "./platform/shopify/encrypted-session-storage.server";
+import { activateInstalledShop } from "./tenancy/shop-lifecycle.server";
+import { ShopRepository } from "./tenancy/shop-repository.server";
+import { requestShopSynchronization } from "./sync/synchronization-request.server";
+
+const encryptedSessionStorage = new EncryptedPrismaSessionStorage(prisma);
 
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
@@ -14,8 +20,21 @@ const shopify = shopifyApp({
   scopes: process.env.SCOPES?.split(","),
   appUrl: process.env.SHOPIFY_APP_URL || "",
   authPathPrefix: "/auth",
-  sessionStorage: new PrismaSessionStorage(prisma),
+  sessionStorage: encryptedSessionStorage,
   distribution: AppDistribution.AppStore,
+  hooks: {
+    afterAuth: async ({ session }) => {
+      const correlationId = createCorrelationId();
+      await activateInstalledShop(session, correlationId);
+      const shop = await new ShopRepository(prisma).findByDomain(session.shop);
+      if (shop?.scopesComplete) {
+        await requestShopSynchronization({
+          shopDomain: session.shop,
+          correlationId,
+        });
+      }
+    },
+  },
   future: {
     expiringOfflineAccessTokens: true,
   },

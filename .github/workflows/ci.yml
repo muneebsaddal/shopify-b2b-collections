@@ -11,6 +11,20 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: validation
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/validation
     steps:
@@ -21,8 +35,28 @@ jobs:
           cache: npm
 
       - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run release:migrate
       - run: npm run prisma:validate
       - run: npm test
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run build
+      - run: npm run test:e2e
+
+  container:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Build production image
+        run: docker build --tag b2b-ar-collections-assistant:ci .
+      - name: Verify pruned runtime contract
+        run: >-
+          docker run --rm --entrypoint sh
+          b2b-ar-collections-assistant:ci -c
+          'test "$(id -u)" = "1000" &&
+          test -x node_modules/.bin/tsx &&
+          test -x node_modules/.bin/react-router-serve &&
+          test -x node_modules/.bin/prisma &&
+          test -f build/server/index.js'
